@@ -1,0 +1,278 @@
+Book.java
+package com.jsp.lms.model;
+
+public class Book {
+		private String bookName;
+		private String bookAuthor;
+		private double bookPrice;
+		public String getBookName() {
+			return bookName;
+		}
+		public void setBookName(String bookName) {
+			this.bookName = bookName;
+		}
+		public String getBookAuthor() {
+			return bookAuthor;
+		}
+		public void setBookAuthor(String bookAuthor) {
+			this.bookAuthor = bookAuthor;
+		}
+		public double getBookPrice() {
+			return bookPrice;
+		}
+		public void setBookPrice(double bookPrice) {
+			this.bookPrice = bookPrice;
+		}
+		@Override
+		public String toString() {
+			return "Book name = " + bookName + ", Book author = " + bookAuthor + ", Book price = " + bookPrice + "";
+		}
+
+}
+
+
+Library.java
+
+package com.jsp.lms.model;
+
+import java.util.List;
+
+public class Library {
+	private String libraryName;
+	private String libraryAddress;
+	private int pincode;
+	
+   private List<Book> books;
+  
+	public String getLibraryName() {
+		return libraryName;
+	}
+
+	public void setLibraryName(String libraryName) {
+		this.libraryName = libraryName;
+	}
+
+	public String getLibraryAddress() {
+		return libraryAddress;
+	}
+
+	public void setLibraryAddress(String libraryAddress) {
+		this.libraryAddress = libraryAddress;
+	}
+
+	public int getPincode() {
+		return pincode;
+	}
+
+	public void setPincode(int pincode) {
+		this.pincode = pincode;
+	}
+
+	public List<Book> getBooks() {
+		return books;
+	}
+
+	public void setBooks(List<Book> books) {
+		this.books = books;
+	}
+
+	
+}
+
+
+View.java
+
+package com.jsp.lms.view;
+
+import java.util.List;
+import java.util.Scanner;
+
+import com.jsp.lms.controller.Controller;
+import com.jsp.lms.model.Book;
+import com.jsp.lms.model.Library;
+
+public class View {
+	static private Library library = new Library();
+	static Controller controller = new Controller();
+
+	public static Library getLibrary() {
+		return library;
+	}
+
+	public static void setLibrary(Library library) {
+		View.library = library;
+	}
+
+	static Scanner myInput = new Scanner(System.in);
+	static {
+		System.out.println("-------Welcome to LMS-------");
+		System.out.print("Enter name of library : ");
+		String libraryName = myInput.nextLine();
+		library.setLibraryName(libraryName);
+		System.out.print("Enter address of library : ");
+		library.setLibraryAddress(myInput.nextLine());
+		System.out.print("Enter pincode : ");
+		library.setPincode(myInput.nextInt());
+		myInput.nextLine();
+	}
+
+	public static void main(String[] args) {
+		do {
+			System.out.println("Select option to perform");
+			System.out.println("1.Add Book\n2.Remove Book\n3.Update Book\n4.Get Book\n0.Exit");
+			System.out.print("Enter digit to desire option : ");
+			byte userchoice = myInput.nextByte();
+			myInput.nextLine();
+			switch (userchoice) {
+			case 0:
+				myInput.close();
+				System.out.println("----------E X I T E D----------");
+				System.exit(0);
+				break;
+			case 1:
+				Book book = new Book();
+				System.out.print("Enter book name : ");
+				book.setBookName(myInput.nextLine());
+				System.out.print("Enter Author name : ");
+				book.setBookAuthor(myInput.nextLine());
+				System.out.println("Enter the price : ");
+				book.setBookPrice(myInput.nextDouble());
+				myInput.nextLine();
+				controller.addBook(book);
+				System.out.println("Sucessfully added");
+
+				break;
+			case 2:
+				System.out.print("Enter book name to be remove : ");
+				String booktoremove = myInput.nextLine();
+				if (controller.removeBook(booktoremove)) {
+					System.out.println("Requested book has been remove");
+				} else {
+					System.out.println("This Book does not exist");
+				}
+
+				break;
+			case 3:
+				System.out.println("Enter book name to update : ");
+				Book bookExist = controller.getbook(myInput.nextLine());
+				if (bookExist != null) {
+					Book booktoUpdate =bookExist;
+					System.out.println("what to udate ?");
+					System.out.println("1.Book name \n2.Author name \n3.Book price");
+					System.out.print("Enter digit respective to desired option : ");
+					byte updatechoice = myInput.nextByte();
+					myInput.nextLine();
+					switch (updatechoice) {
+					case 1:
+						System.out.println("Enter Book name to update : ");
+						booktoUpdate.setBookName(myInput.nextLine());
+                      
+						break;
+					case 2:
+						System.out.println("Enter Author name to update : ");
+						booktoUpdate.setBookAuthor(myInput.nextLine());
+
+						break;
+					case 3:
+						System.out.println("Enter Book Price to update : ");
+						double newPrice = myInput.nextDouble();
+						myInput.nextLine();
+						booktoUpdate.setBookPrice(newPrice);
+
+						break;
+
+					default:
+						System.out.println("----------Invalide Selection-----------");
+						break;
+					}
+
+				}
+
+				break;
+			case 4:
+				System.out.println("Enter book name you looking for : ");
+				Book fetchedbook = controller.getbook(myInput.nextLine());
+				if (fetchedbook != null) {
+					System.out.println("Book is avaliable");
+					System.out.println("Details : ");
+					System.out.println(fetchedbook);
+
+				} else {
+					System.out.println("Book is not avaliable");
+
+				}
+
+				break;
+
+			default:
+				System.out.println("Invalid selection");
+				break;
+			}
+		} while (true);
+	}
+
+}
+
+
+Controllar.java
+
+package com.jsp.lms.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jsp.lms.model.Book;
+import com.jsp.lms.model.Library;
+import com.jsp.lms.view.View;
+
+public class Controller {
+	private Library library = View.getLibrary();
+	
+	public void addBook(Book book) {
+		List<Book> books = library.getBooks();
+		if(books == null) {
+			books = new ArrayList<Book>();
+		}
+		books.add(book);
+		library.setBooks(books);
+	}
+	public boolean removeBook(String bookName) {
+		Book book = getbook(bookName);
+		if(book != null) {
+			List<Book> books = library.getBooks();
+			boolean remove = books.remove(book);
+			library.setBooks(books);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean update(Book bookExist, Book booktoUpdate) {
+		List<Book> books = library.getBooks();
+		for (Book book : books) {
+			if(book.getBookName().equalsIgnoreCase(bookExist.getBookName())) {
+				books.remove(bookExist);
+				books.add(booktoUpdate);
+				library.setBooks(books);
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
+	public Book getbook(String bookName) {
+		List<Book> books = library.getBooks();
+		if (books != null) {
+			for (Book book : books) {
+				if(book.getBookName().equalsIgnoreCase(bookName)) {
+					return book;
+				}
+				
+			}
+		}
+		return null;
+		
+	}
+
+}
